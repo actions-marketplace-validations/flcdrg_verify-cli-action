@@ -15,7 +15,7 @@ is required; the working and snapshot directories default to `dist`.
 steps:
   - uses: actions/checkout@v7
   - name: Verify tags
-    uses: flcdrg/action-verify-cli@main
+    uses: flcdrg/verify-cli-action@v1
     with:
       file: dist/tags.html
 ```
@@ -31,7 +31,7 @@ is not checked into the repository.
 steps:
   - uses: actions/checkout@v7
   - name: Verify tags
-    uses: flcdrg/action-verify-cli@main
+    uses: flcdrg/verify-cli-action@v1
     with:
       file: dist/tags.html
       working-directory: .

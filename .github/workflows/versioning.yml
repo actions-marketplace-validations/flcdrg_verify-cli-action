@@ -1,0 +1,14 @@
+name: Keep the versions up-to-date
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  actions-tagger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Actions-R-Us/actions-tagger@latest
+        with:
+          publish_latest_tag: true
