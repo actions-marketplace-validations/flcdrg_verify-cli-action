@@ -1,0 +1,80 @@
+name: "Verify CLI"
+description: "Runs the Verify.CLI tool and shows the diff if the verification fails."
+inputs:
+  file:
+    description: "The file to verify, relative to the working directory if specified, otherwise relative to the current directory."
+    required: true
+  working-directory:
+    description: "The working directory for the verification. Defaults to the directory containing the file."
+    required: false
+  verified-directory:
+    description: "The directory containing the verified files, relative to the working directory."
+    required: false
+    default: "."
+  scrub-inline-pattern:
+    description: "Inline regular expressions to scrub, one per line."
+    required: false
+  scrub-inline-remove:
+    description: "Inline strings to remove, one per line. Whitespace is preserved."
+    required: false
+  verbosity:
+    description: "The Verify.CLI verbosity level."
+    required: false
+    default: "detailed"
+runs:
+  using: composite
+  steps:
+    - name: "Run Verify.CLI"
+      id: run-verify-cli
+      shell: bash
+      env:
+        VERIFY_FILE: ${{ inputs.file }}
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
+        VERIFIED_DIRECTORY: ${{ inputs.verified-directory }}
+        SCRUB_INLINE_PATTERNS: ${{ inputs.scrub-inline-pattern }}
+        SCRUB_INLINE_REMOVALS: ${{ inputs.scrub-inline-remove }}
+        VERBOSITY: ${{ inputs.verbosity }}
+      run: |
+        if [[ -z "$WORKING_DIRECTORY" ]]; then
+          WORKING_DIRECTORY="$(dirname -- "$VERIFY_FILE")"
+          VERIFY_FILE="${VERIFY_FILE##*/}"
+        fi
+        cd -- "$WORKING_DIRECTORY"
+        verified_directory="${VERIFIED_DIRECTORY:-.}"
+        mkdir -p -- "$verified_directory"
+        args=(--file "/tmp/$VERIFY_FILE" --verified-dir "/tmp/$verified_directory")
+
+        while IFS= read -r pattern || [[ -n "$pattern" ]]; do
+          if [[ -n "$pattern" ]]; then
+            args+=(--scrub-inline-pattern "$pattern")
+          fi
+        done <<< "$SCRUB_INLINE_PATTERNS"
+
+        while IFS= read -r removal || [[ -n "$removal" ]]; do
+          if [[ -n "$removal" ]]; then
+            args+=(--scrub-inline-remove "$removal")
+          fi
+        done <<< "$SCRUB_INLINE_REMOVALS"
+
+        args+=(--verbosity "${VERBOSITY:-detailed}")
+        docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/tmp" flcdrg/verify-cli "${args[@]}"
+
+    - name: "Diff verification if error"
+      if: failure() && steps.run-verify-cli.outcome == 'failure'
+      shell: bash
+      env:
+        VERIFY_FILE: ${{ inputs.file }}
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
+        VERIFIED_DIRECTORY: ${{ inputs.verified-directory }}
+      run: |
+        if [[ -z "$WORKING_DIRECTORY" ]]; then
+          WORKING_DIRECTORY="$(dirname -- "$VERIFY_FILE")"
+        fi
+        cd -- "$WORKING_DIRECTORY"
+        verified_directory="${VERIFIED_DIRECTORY:-.}"
+        filename="${VERIFY_FILE##*/}"
+        suffix="${filename##*.}"
+
+        ls -al -- "$verified_directory/"
+        printf '\n'
+        diff -u -- "$verified_directory/$filename.verified.$suffix" "$verified_directory/$filename.received.$suffix"

@@ -1,0 +1,51 @@
+name: "Test action-verify-cli"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: "Match in same directory"
+        uses: ./
+        with:
+          file: "samples/same-directory/matching.html"
+
+      - name: "Match in same directory - not matching"
+        continue-on-error: true
+        id: not_matching_same_directory
+        uses: ./
+        with:
+          file: "not-matching.html"
+          working-directory: "samples/same-directory"
+
+      - name: "Fail if previous step did not fail"
+        if: always() && steps.not_matching_same_directory.outcome != 'failure'
+        run: exit 1
+
+      - name: "Match in separate verified directory - matching"
+        uses: ./
+        with:
+          file: "samples/separate-verified/data/matching.json"
+          verified-directory: "samples/separate-verified/verified"
+
+      - name: "Match in separate verified directory - not matching"
+        continue-on-error: true
+        id: not_matching_separate_verified
+        uses: ./
+        with:
+          file: "data/notMatching.json"
+          verified-directory: "samples/separate-verified/verified"
+          working-directory: "samples/separate-verified"
+
+      - name: "Fail if previous step did not fail"
+        if: always() && steps.not_matching_separate_verified.outcome != 'failure'
+        run: exit 1
