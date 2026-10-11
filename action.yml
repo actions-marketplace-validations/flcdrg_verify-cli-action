@@ -1,5 +1,9 @@
 name: "Verify CLI"
 description: "Runs the Verify.CLI tool and shows the diff if the verification fails."
+author: flcdrg
+branding:
+  color: "green"
+  icon: "check-circle"
 inputs:
   file:
     description: "The file to verify, relative to the working directory if specified, otherwise relative to the current directory."
