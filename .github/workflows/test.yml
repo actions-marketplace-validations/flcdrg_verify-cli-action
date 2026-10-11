@@ -34,8 +34,9 @@ jobs:
       - name: "Match in separate verified directory - matching"
         uses: ./
         with:
-          file: "samples/separate-verified/data/matching.json"
-          verified-directory: "samples/separate-verified/verified"
+          file: "data/matching.json"
+          working-directory: "samples/separate-verified"
+          verified-directory: "verified"
 
       - name: "Match in separate verified directory - not matching"
         continue-on-error: true
@@ -43,8 +44,8 @@ jobs:
         uses: ./
         with:
           file: "data/notMatching.json"
-          verified-directory: "samples/separate-verified/verified"
           working-directory: "samples/separate-verified"
+          verified-directory: "verified"
 
       - name: "Fail if previous step did not fail"
         if: always() && steps.not_matching_separate_verified.outcome != 'failure'
