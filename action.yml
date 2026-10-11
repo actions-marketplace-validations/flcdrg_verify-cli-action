@@ -1,4 +1,4 @@
-name: "Verify CLI"
+name: "Verify Cli"
 description: "Runs the Verify.CLI tool and shows the diff if the verification fails."
 author: flcdrg
 branding:
