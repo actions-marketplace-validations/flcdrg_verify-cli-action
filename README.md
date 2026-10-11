@@ -1,15 +1,35 @@
-# GitHub Action for running Verify.CLI
+# GitHub Action for running Verify.Cli
 
-Perform snapshot testing with files in your GitHub Action workflows.
+Perform snapshot testing with files in your GitHub Action workflows. If the received file doesn't match the verified file, then the action will return an error and it will run `diff` against the two files so you can see what the difference is.
 
 Runs [`flcdrg/Verify.Cli`](https://github.com/flcdrg/Verify.Cli) in Docker and prints a unified diff when verification
 fails. Use a Linux runner with Docker available, and check out your repository
 before running the action. A failed verification fails the action.
 
+## Simplest Use
+
+Verify an existing file against `dist/tags.html.verified.html`. Only `file`
+is required; the working and snapshot directories default to `dist`.
+
 ```yaml
 steps:
   - uses: actions/checkout@v7
-  # Build the site here so dist/tags.html exists.
+  - name: Verify tags
+    uses: flcdrg/action-verify-cli@main
+    with:
+      file: dist/tags.html
+```
+
+## Additional Inputs
+
+Use workspace-relative paths and compare against
+`verified/tags.html.verified.html`, scrubbing changing content before comparison.
+In both examples, generate `dist/tags.html` before the verification step if it
+is not checked into the repository.
+
+```yaml
+steps:
+  - uses: actions/checkout@v7
   - name: Verify tags
     uses: flcdrg/action-verify-cli@main
     with:
@@ -23,6 +43,8 @@ steps:
       scrub-inline-remove: ' data-image-component="true"'
       verbosity: detailed
 ```
+
+## Inputs
 
 | Input                  | Required | Default                 | Description                                                                                  |
 | ---------------------- | -------- | ----------------------- | -------------------------------------------------------------------------------------------- |
