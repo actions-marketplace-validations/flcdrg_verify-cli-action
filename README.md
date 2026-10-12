@@ -41,19 +41,21 @@ steps:
         (?<prefix>title=")[^"]+(?<suffix>")
         (?<prefix>meta name="generator" content="Astro v)[\d\.]+(?<suffix>")
       scrub-inline-remove: ' data-image-component="true"'
+      scrub-inline-datetime: yyyy-MM-ddTHH:mm:ss.fffZ
       verbosity: detailed
 ```
 
 ## Inputs
 
-| Input                  | Required | Default                 | Description                                                                                  |
-| ---------------------- | -------- | ----------------------- | -------------------------------------------------------------------------------------------- |
-| `file`                 | Yes      |                         | File path relative to the explicit working directory, or the current directory when omitted. |
-| `working-directory`    | No       | File's parent directory | Directory to mount at `/tmp` in the container.                                               |
-| `verified-directory`   | No       | `.`                     | Snapshot directory relative to the working directory.                                        |
-| `scrub-inline-pattern` | No       |                         | Regular expressions, one per line.                                                           |
-| `scrub-inline-remove`  | No       |                         | Literal strings to remove, one per line.                                                     |
-| `verbosity`            | No       | `detailed`              | Verify.CLI verbosity level.                                                                  |
+| Input                   | Required | Default                 | Description                                                                                  |
+| ----------------------- | -------- | ----------------------- | -------------------------------------------------------------------------------------------- |
+| `file`                  | Yes      |                         | File path relative to the explicit working directory, or the current directory when omitted. |
+| `working-directory`     | No       | File's parent directory | Directory to mount at `/tmp` in the container.                                               |
+| `verified-directory`    | No       | `.`                     | Snapshot directory relative to the working directory.                                        |
+| `scrub-inline-pattern`  | No       |                         | Regular expressions, one per line.                                                           |
+| `scrub-inline-remove`   | No       |                         | Literal strings to remove, one per line.                                                     |
+| `scrub-inline-datetime` | No       |                         | Date and time format to scrub from inline values.                                            |
+| `verbosity`             | No       | `detailed`              | Verify.CLI verbosity level.                                                                  |
 
 Blank scrub lines are ignored; all other whitespace and backslashes are
 preserved. Keep file and snapshot paths within the mounted working directory.

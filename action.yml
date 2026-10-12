@@ -21,6 +21,9 @@ inputs:
   scrub-inline-remove:
     description: "Inline strings to remove, one per line. Whitespace is preserved."
     required: false
+  scrub-inline-datetime:
+    description: "Date and time format to scrub from inline values."
+    required: false
   verbosity:
     description: "The Verify.CLI verbosity level."
     required: false
@@ -37,6 +40,7 @@ runs:
         VERIFIED_DIRECTORY: ${{ inputs.verified-directory }}
         SCRUB_INLINE_PATTERNS: ${{ inputs.scrub-inline-pattern }}
         SCRUB_INLINE_REMOVALS: ${{ inputs.scrub-inline-remove }}
+        SCRUB_INLINE_DATETIME: ${{ inputs.scrub-inline-datetime }}
         VERBOSITY: ${{ inputs.verbosity }}
       run: |
         if [[ -z "$WORKING_DIRECTORY" ]]; then
@@ -59,6 +63,10 @@ runs:
             args+=(--scrub-inline-remove "$removal")
           fi
         done <<< "$SCRUB_INLINE_REMOVALS"
+
+        if [[ -n "$SCRUB_INLINE_DATETIME" ]]; then
+          args+=(--scrub-inline-datetime "$SCRUB_INLINE_DATETIME")
+        fi
 
         args+=(--verbosity "${VERBOSITY:-detailed}")
         docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/tmp" flcdrg/verify-cli "${args[@]}"
