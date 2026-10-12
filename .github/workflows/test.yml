@@ -18,6 +18,7 @@ jobs:
         uses: ./
         with:
           file: "samples/same-directory/matching.html"
+          scrub-inline-datetime: yyyy-MM-dd
 
       - name: "Match in same directory - not matching"
         continue-on-error: true
